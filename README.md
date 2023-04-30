@@ -1,12 +1,23 @@
-# Getting Started with Create React App
+# React.js Web Demo
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Development
 
-## Available Scripts
+Install Node.js > 16
 
-In the project directory, you can run:
+### A. To install and run the App:
 
-### `npm start`
+```
+git clone https://github.com/webtrackerxy/react-ts-web-demo.git
+cd react-ts-web-demo
+npm i
+npm start
+```
+
+#### To run unit-testing
+
+```
+npm test
+```
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
@@ -14,33 +25,46 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
-### `npm test`
+There are two pages in this app:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+a. http://localhost:3000 -> Login page <br>
+b. http://localhost:3000/dashboard -> Dashboard page
 
-### `npm run build`
+Responsive design is implemented in the Dashboard page. It uses media queries in the CSS files to make the layout responsive when the width of the broswer is equal or less than 500px that switches the layout of the table and chart from horizontal to vertical on small screens.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### B. To build the Docker image:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Install Docker on your system if you haven't already: https://docs.docker.com/get-docker/
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Open a terminal or command prompt, and navigate to the root directory of your project.
 
-### `npm run eject`
+3. Build the Docker image by running the following command.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```
+docker build -t react-ts-web-demo .
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+4. Once the image has been built, you can run a Docker container based on the image.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```
+docker run -p 80:80 react-ts-web-demo
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+5. Open a broswer, input http://localhost. You will see the web page. The docker container is ready to deploy to cloud
 
-## Learn More
+### C. App Structure
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+| File / dir    | Description                                                                                                                                                                                                                                    |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| node_modules  | Contains all our lovely dependencies                                                                                                                                                                                                           |
+| public        | Contains HTML file, which is the entry point to the React application, and other assets such as data, images, icons, and fonts.                                                                                                                |
+| src/pages     | Page compontents. Current it contains Login.tsx and Dashboard.tsx                                                                                                                                                                              |
+| src/store     | The redux store holds the entire state tree of the application. index.ts exports the store configuration and the reducers. appReducer.ts takes the current state and an action, and return a new state based on the action that was performed. |
+| src/styles    | Contains all the style scss files                                                                                                                                                                                                              |
+| src/types     | Holds the types used by this applications                                                                                                                                                                                                      |
+| App.tsx       | Main component of the React application. It contains a router to handle navigation between different pages within the application. currently, It supports Login and Dashboard pages.                                                           |
+| index.tsx     | Entry point of the React application                                                                                                                                                                                                           |
+| Dockerfile    | Docker image defination file                                                                                                                                                                                                                   |
+| README.md     | This file                                                                                                                                                                                                                                      |
+| package.json  | Lists NPM dependencies and build scripts                                                                                                                                                                                                       |
+| tsconfig.json | Configures the TypeScript compiler                                                                                                                                                                                                             |
