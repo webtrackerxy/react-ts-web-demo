@@ -50,7 +50,7 @@ docker build -t react-ts-web-demo .
 docker run -p 80:80 react-ts-web-demo
 ```
 
-5. Open a broswer, input http://localhost. You will see the web page. The docker container is ready to deploy to cloud
+5. Open a broswer, input http://localhost. You will see the web page. The docker container is ready to deploy to the cloud.
 
 ### C. App Structure
 
@@ -58,10 +58,10 @@ docker run -p 80:80 react-ts-web-demo
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | node_modules  | Contains all our lovely dependencies                                                                                                                                                                                                           |
 | public        | Contains HTML file, which is the entry point to the React application, and other assets such as data, images, icons, and fonts.                                                                                                                |
-| src/pages     | Page compontents. Current it contains Login.tsx and Dashboard.tsx                                                                                                                                                                              |
+| src/pages     | Page components. Currently, it contains Login.tsx and Dashboard.tsx                                                                                                                                                                            |
 | src/store     | The redux store holds the entire state tree of the application. index.ts exports the store configuration and the reducers. appReducer.ts takes the current state and an action, and return a new state based on the action that was performed. |
 | src/styles    | Contains all the style scss files                                                                                                                                                                                                              |
-| src/types     | Holds the types used by this applications                                                                                                                                                                                                      |
+| src/types     | Holds the types used by this application                                                                                                                                                                                                       |
 | App.tsx       | Main component of the React application. It contains a router to handle navigation between different pages within the application. currently, It supports Login and Dashboard pages.                                                           |
 | index.tsx     | Entry point of the React application                                                                                                                                                                                                           |
 | Dockerfile    | Docker image defination file                                                                                                                                                                                                                   |
