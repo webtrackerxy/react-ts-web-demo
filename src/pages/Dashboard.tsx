@@ -24,12 +24,17 @@ interface Props {
   currentItem: number;
   setData: (data: DataItem[]) => void;
   setCurrentItem: (currentItem: number) => void;
-  updateValue: (currentItem: number, attributeName: string, value: string) => void;
 }
 
-class Dashboard extends Component<Props> {
-  state = {
+interface State {
+  editingAttribute: string | null;
+  attributeValues: { [key: string]: string };
+}
+
+class Dashboard extends Component<Props, State> {
+  state: State = {
     editingAttribute: null,
+    attributeValues: {},
   };
 
   componentDidMount() {
@@ -43,7 +48,9 @@ class Dashboard extends Component<Props> {
   }
 
   updateValue(attributeName: string, value: string) {
-    this.props.updateValue(this.props.currentItem, attributeName, value);
+    this.setState(prevState => ({
+      attributeValues: { ...prevState.attributeValues, [attributeName]: value },
+    }));
   }
 
   render() {
@@ -65,6 +72,12 @@ class Dashboard extends Component<Props> {
     
       return null;
     };
+
+    // Create a modified chart data with updated attribute values
+    const modifiedChartData = chartData.map(attribute => ({
+      ...attribute,
+      value: this.state.attributeValues[attribute.name] || attribute.value,
+    }));
 
     return (
       <div className="dashboard">
@@ -92,7 +105,7 @@ class Dashboard extends Component<Props> {
                           onChange={(e) => this.updateValue(attribute.name, e.target.value)}
                         />
                       ) : (
-                        attribute.value
+                        this.state.attributeValues[attribute.name] || attribute.value
                       )}
                     </td>
                     <td>{attribute.unit}</td>
@@ -103,7 +116,7 @@ class Dashboard extends Component<Props> {
           <BarChart
             width={500}
             height={300}
-            data={chartData}
+            data={modifiedChartData}
             margin={{
               top: 5,
               right: 30,
@@ -117,7 +130,7 @@ class Dashboard extends Component<Props> {
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="value" fill="#888400" />
           </BarChart>
-          </div>
+        </div>
         <input
           type="range"
           min="0"
@@ -131,16 +144,13 @@ class Dashboard extends Component<Props> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-  data: state.data.data,
-  currentItem: state.data.currentItem,
+data: state.data.data,
+currentItem: state.data.currentItem,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  setData: (data: DataItem[]) => dispatch({ type: 'SET_DATA', data }),
-  setCurrentItem: (currentItem: number) =>
-    dispatch({ type: 'SET_CURRENT_ITEM', currentItem }),
-  updateValue: (currentItem: number, attributeName: string, value: string) =>
-    dispatch({ type: 'UPDATE_VALUE', currentItem, attributeName, value }),
+setData: (data: DataItem[]) => dispatch({ type: 'SET_DATA', data }),
+setCurrentItem: (currentItem: number) => dispatch({ type: 'SET_CURRENT_ITEM', currentItem }),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);                 
