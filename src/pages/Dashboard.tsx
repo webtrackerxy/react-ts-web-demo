@@ -78,7 +78,7 @@ class Dashboard extends Component<Props, State> {
       ...attribute,
       value: this.state.attributeValues[attribute.name] || attribute.value,
     }));
-
+    
     return (
       <div className="dashboard">
         <div className={'dashboard-title'}>{data && data[currentItem].title}</div>
