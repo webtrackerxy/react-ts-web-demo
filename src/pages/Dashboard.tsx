@@ -116,8 +116,7 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = (dispatch: any) => ({
   setData: (data: DataItem[]) => dispatch({ type: 'SET_DATA', data }),
-  setCurrentItem: (currentItem: number) =>
-  dispatch({ type: 'SET_CURRENT_ITEM', currentItem }),
+  setCurrentItem: (currentItem: number) => dispatch({ type: 'SET_CURRENT_ITEM', currentItem }),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
