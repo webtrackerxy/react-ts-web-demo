@@ -54,11 +54,12 @@ class Dashboard extends Component<Props, State> {
   }
 
   // for edit cell
-  handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+  handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>, index: number,  attributeName: string) => {
     if (event.key === 'Enter' && this.props.data) {
-      const updatedData = [...this.props.data];
-      updatedData[this.props.currentItem].attributes[index].value = parseFloat(this.state.updatedValue);
-      this.props.setData(updatedData);
+      console.log('Enter')
+      // const updatedData = [...this.props.data];
+      // updatedData[this.props.currentItem].attributes[index].value = parseFloat(attributeName);
+      // this.props.setData(updatedData);
       //reset the cell value
       // this.setState({ editingCell: null, updatedValue: '' });
     }
@@ -104,16 +105,17 @@ class Dashboard extends Component<Props, State> {
             </thead>
             <tbody>
               {data &&
-                data[currentItem].attributes.map(attribute => (
+                data[currentItem].attributes.map((attribute,index)  => (
                   <tr key={attribute.name}>
                     <td>{attribute.name}</td>
-                    <td onClick={() => this.toggleInput(attribute.name)}>
+                    <td onClick={() => this.toggleInput(attribute.name)} >
                       {this.state.editingAttribute === attribute.name ? (
                         <input
                           type="text"
                           defaultValue={attribute.value}
                           onBlur={() => this.toggleInput('')}
                           onChange={(e) => this.updateValue(attribute.name, e.target.value)}
+                          onKeyPress={(event) => this.handleKeyPress(event, index, attribute.name)}
                         />
                       ) : (
                         this.state.attributeValues[attribute.name] || attribute.value
@@ -127,7 +129,7 @@ class Dashboard extends Component<Props, State> {
           <BarChart
             width={500}
             height={300}
-            data={modifiedChartData}
+            data={modifiedChartData? modifiedChartData:chartData }
             margin={{
               top: 5,
               right: 30,
