@@ -24,13 +24,26 @@ interface Props {
   currentItem: number;
   setData: (data: DataItem[]) => void;
   setCurrentItem: (currentItem: number) => void;
+  updateValue: (currentItem: number, attributeName: string, value: string) => void;
 }
 
 class Dashboard extends Component<Props> {
+  state = {
+    editingAttribute: null,
+  };
+
   componentDidMount() {
     fetch(`/data/data.json`)
       .then(response => response.json())
       .then(data => {console.log("data", data); this.props.setData(data)});
+  }
+
+  toggleInput(attributeName: string) {
+    this.setState({ editingAttribute: attributeName });
+  }
+
+  updateValue(attributeName: string, value: string) {
+    this.props.updateValue(this.props.currentItem, attributeName, value);
   }
 
   render() {
@@ -39,8 +52,6 @@ class Dashboard extends Component<Props> {
 
     const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
       if (active && payload && payload.length) {
-
-        // console.log("CustomTooltip", payload)
         const { value } = payload[0];
 
         return (
@@ -72,41 +83,51 @@ class Dashboard extends Component<Props> {
                 data[currentItem].attributes.map(attribute => (
                   <tr key={attribute.name}>
                     <td>{attribute.name}</td>
-                    <td>{attribute.value}</td>
+                    <td onClick={() => this.toggleInput(attribute.name)}>
+                      {this.state.editingAttribute === attribute.name ? (
+                        <input
+                          type="text"
+                          defaultValue={attribute.value}
+                          onBlur={() => this.toggleInput('')}
+                          onChange={(e) => this.updateValue(attribute.name, e.target.value)}
+                        />
+                      ) : (
+                        attribute.value
+                      )}
+                    </td>
                     <td>{attribute.unit}</td>
                   </tr>
                 ))}
             </tbody>
           </table>
-          <      BarChart
-        width={500}
-        height={300}
-        data={chartData}
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip content={<CustomTooltip />} />
-        <Bar dataKey="value" fill="#888400" />
-      </BarChart>
-    </div>
-    <input
-      type="range"
-      min="0"
-      max={data ? data.length - 1 : 0}
-      value={currentItem}
-      onChange={e => setCurrentItem(parseInt(e.target.value))}
-    />
-  </div>
-);
-
-}
+          <BarChart
+            width={500}
+            height={300}
+            data={chartData}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip content={<CustomTooltip />} />
+            <Bar dataKey="value" fill="#888400" />
+          </BarChart>
+          </div>
+        <input
+          type="range"
+          min="0"
+          max={data ? data.length - 1 : 0}
+          value={currentItem}
+          onChange={e => setCurrentItem(parseInt(e.target.value))}
+        />
+      </div>
+    );
+  }
 }
 
 const mapStateToProps = (state: RootState) => ({
@@ -116,7 +137,10 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = (dispatch: any) => ({
   setData: (data: DataItem[]) => dispatch({ type: 'SET_DATA', data }),
-  setCurrentItem: (currentItem: number) => dispatch({ type: 'SET_CURRENT_ITEM', currentItem }),
+  setCurrentItem: (currentItem: number) =>
+    dispatch({ type: 'SET_CURRENT_ITEM', currentItem }),
+  updateValue: (currentItem: number, attributeName: string, value: string) =>
+    dispatch({ type: 'UPDATE_VALUE', currentItem, attributeName, value }),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
