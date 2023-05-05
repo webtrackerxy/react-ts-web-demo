@@ -53,6 +53,17 @@ class Dashboard extends Component<Props, State> {
     }));
   }
 
+  // for edit cell
+  handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (event.key === 'Enter' && this.props.data) {
+      const updatedData = [...this.props.data];
+      updatedData[this.props.currentItem].attributes[index].value = parseFloat(this.state.updatedValue);
+      this.props.setData(updatedData);
+      //reset the cell value
+      // this.setState({ editingCell: null, updatedValue: '' });
+    }
+  };
+
   render() {
     const { data, currentItem, setCurrentItem } = this.props;
     const chartData = data ? data[currentItem].attributes : [];
