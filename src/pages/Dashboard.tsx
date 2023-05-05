@@ -1,17 +1,10 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { RootState } from '../store';
-import { DataItem } from '../types';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip
-} from 'recharts';
-import '../styles/Dashboard.scss';
-import '../styles/Custom-tooltip.scss';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { RootState } from "../store";
+import { DataItem } from "../types";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import "../styles/Dashboard.scss";
+import "../styles/Custom-tooltip.scss";
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -26,42 +19,87 @@ interface Props {
   setCurrentItem: (currentItem: number) => void;
 }
 
-interface State {
-  editingAttribute: string | null;
-  attributeValues: { [key: string]: string };
-}
-
-class Dashboard extends Component<Props, State> {
-  state: State = {
-    editingAttribute: null,
-    attributeValues: {},
+class Dashboard extends Component<Props> {
+  // for edit cell
+  state = {
+    editingCell: null,
+    updatedValue: "",
   };
 
   componentDidMount() {
     fetch(`/data/data.json`)
-      .then(response => response.json())
-      .then(data => {console.log("data", data); this.props.setData(data)});
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("data", data);
+        this.props.setData(data);
+      });
+
+    // Add event listener to handle clicks outside the input box
+    document.addEventListener("mousedown", this.handleClickOutside);
   }
 
-  toggleInput(attributeName: string) {
-    this.setState({ editingAttribute: attributeName });
+  componentWillUnmount() {
+    // Remove event listener on component unmount
+    document.removeEventListener("mousedown", this.handleClickOutside);
   }
 
-  updateValue(attributeName: string, value: string) {
-    this.setState(prevState => ({
-      attributeValues: { ...prevState.attributeValues, [attributeName]: value },
-    }));
+  // Create a ref for the input element
+  inputRef = React.createRef<HTMLInputElement>();
+
+  // Function to handle clicks outside the input box
+  handleClickOutside = (event: MouseEvent) => {
+    if (
+      this.inputRef.current &&
+      !this.inputRef.current.contains(event.target as Node)
+    ) {
+      this.setState({ editingCell: null, updatedValue: "" });
+    }
+  };
+
+  // for edit cell
+  onCellClick = (index: number) => {
+    if (this.props.data && this.props.data[this.props.currentItem]) {
+      this.setState({
+        editingCell: index,
+        updatedValue:
+          this.props.data[this.props.currentItem].attributes[index].value,
+      });
+    }
+  };
+
+  // for edit cell
+  onInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    this.setState({ updatedValue: event.target.value });
+  };
+
+  // for edit cell
+  updateValue(index: number, value: string) {
+    this.setState({ updatedValue: value });
+    if (this.props.data) {
+      const updatedData = [...this.props.data];
+      updatedData[this.props.currentItem].attributes[index].value = parseFloat(
+        this.state.updatedValue
+      );
+      this.props.setData(updatedData);
+    }
   }
 
   // for edit cell
-  handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>, index: number,  attributeName: string) => {
-    if (event.key === 'Enter' && this.props.data) {
-      console.log('Enter')
-      // const updatedData = [...this.props.data];
-      // updatedData[this.props.currentItem].attributes[index].value = parseFloat(attributeName);
-      // this.props.setData(updatedData);
+  handleKeyPress = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    if (event.key === "Enter" && this.props.data) {
+      const updatedData = [...this.props.data];
+      updatedData[this.props.currentItem].attributes[index].value = parseFloat(
+        this.state.updatedValue
+      );
+      this.props.setData(updatedData);
       //reset the cell value
-      // this.setState({ editingCell: null, updatedValue: '' });
+      this.setState({ editingCell: null, updatedValue: "" });
     }
   };
 
@@ -69,7 +107,11 @@ class Dashboard extends Component<Props, State> {
     const { data, currentItem, setCurrentItem } = this.props;
     const chartData = data ? data[currentItem].attributes : [];
 
-    const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
+    const CustomTooltip: React.FC<CustomTooltipProps> = ({
+      active,
+      payload,
+      label,
+    }) => {
       if (active && payload && payload.length) {
         const { value } = payload[0];
 
@@ -81,19 +123,15 @@ class Dashboard extends Component<Props, State> {
           </div>
         );
       }
-    
+
       return null;
     };
 
-    // Create a modified chart data with updated attribute values
-    const modifiedChartData = chartData.map(attribute => ({
-      ...attribute,
-      value: this.state.attributeValues[attribute.name] || attribute.value,
-    }));
-    
     return (
       <div className="dashboard">
-        <div className={'dashboard-title'}>{data && data[currentItem].title}</div>
+        <div className={"dashboard-title"}>
+          {data && data[currentItem].title}
+        </div>
         <div className="dashboard-content">
           <table className="dashboard-table">
             <thead>
@@ -105,20 +143,24 @@ class Dashboard extends Component<Props, State> {
             </thead>
             <tbody>
               {data &&
-                data[currentItem].attributes.map((attribute,index)  => (
+                data[currentItem].attributes.map((attribute, index) => (
                   <tr key={attribute.name}>
                     <td>{attribute.name}</td>
-                    <td onClick={() => this.toggleInput(attribute.name)} >
-                      {this.state.editingAttribute === attribute.name ? (
+                    <td onClick={() => this.onCellClick(index)}>
+                      {this.state.editingCell === index ? (
                         <input
+                          ref={this.inputRef} // Assign the ref to the input element
                           type="text"
-                          defaultValue={attribute.value}
-                          onBlur={() => this.toggleInput('')}
-                          onChange={(e) => this.updateValue(attribute.name, e.target.value)}
-                          onKeyPress={(event) => this.handleKeyPress(event, index, attribute.name)}
+                          value={this.state.updatedValue}
+                          onChange={(e) =>
+                            this.updateValue(index, e.target.value)
+                          }
+                          onKeyPress={(event) =>
+                            this.handleKeyPress(event, index)
+                          }
                         />
                       ) : (
-                        this.state.attributeValues[attribute.name] || attribute.value
+                        attribute.value
                       )}
                     </td>
                     <td>{attribute.unit}</td>
@@ -129,7 +171,7 @@ class Dashboard extends Component<Props, State> {
           <BarChart
             width={500}
             height={300}
-            data={modifiedChartData? modifiedChartData:chartData }
+            data={chartData}
             margin={{
               top: 5,
               right: 30,
@@ -149,7 +191,7 @@ class Dashboard extends Component<Props, State> {
           min="0"
           max={data ? data.length - 1 : 0}
           value={currentItem}
-          onChange={e => setCurrentItem(parseInt(e.target.value))}
+          onChange={(e) => setCurrentItem(parseInt(e.target.value))}
         />
       </div>
     );
@@ -157,13 +199,14 @@ class Dashboard extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-data: state.data.data,
-currentItem: state.data.currentItem,
+  data: state.data.data,
+  currentItem: state.data.currentItem,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-setData: (data: DataItem[]) => dispatch({ type: 'SET_DATA', data }),
-setCurrentItem: (currentItem: number) => dispatch({ type: 'SET_CURRENT_ITEM', currentItem }),
+  setData: (data: DataItem[]) => dispatch({ type: "SET_DATA", data }),
+  setCurrentItem: (currentItem: number) =>
+    dispatch({ type: "SET_CURRENT_ITEM", currentItem }),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);                 
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
