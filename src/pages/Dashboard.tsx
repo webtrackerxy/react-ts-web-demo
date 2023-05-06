@@ -73,6 +73,12 @@ class Dashboard extends Component<Props> {
     index: number
   ) => {
     this.setState({ updatedValue: event.target.value });
+    if (this.props.data) {
+      this.setState({
+        editingCell: index,
+        updatedValue: event.target.value,
+      });
+    }
   };
 
   // for edit cell
@@ -80,9 +86,8 @@ class Dashboard extends Component<Props> {
     this.setState({ updatedValue: value });
     if (this.props.data) {
       const updatedData = [...this.props.data];
-      updatedData[this.props.currentItem].attributes[index].value = parseFloat(
-        this.state.updatedValue
-      );
+      updatedData[this.props.currentItem].attributes[index].value =
+        parseFloat(value);
       this.props.setData(updatedData);
     }
   }
@@ -149,7 +154,7 @@ class Dashboard extends Component<Props> {
                     <td onClick={() => this.onCellClick(index)}>
                       {this.state.editingCell === index ? (
                         <input
-                          ref={this.inputRef} // Assign the ref to the input element
+                          ref={this.inputRef}
                           type="text"
                           value={this.state.updatedValue}
                           onChange={(e) =>
