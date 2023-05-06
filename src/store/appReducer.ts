@@ -1,7 +1,7 @@
 import { User, DataItem } from '../types';
 
 const initialState = {
-  user : null as User | null,
+  user: null as User | null,
   data: null as DataItem[] | null,
   currentItem: 0,
 };
