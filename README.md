@@ -9,6 +9,7 @@ Install Node.js > 16
 ```
 git clone https://github.com/webtrackerxy/react-ts-web-demo.git
 cd react-ts-web-demo
+git checkout new_branch
 npm i or yarn
 npm start
 ```
